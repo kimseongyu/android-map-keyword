@@ -10,14 +10,14 @@ class SearchRepository(context: Context) {
     fun setDefaultData() {
         delAllStoreInfo()
         for (i in 1..100) {
-            val storeInfo = StoreInfo("cafe ${i}th street", "충남대학교", " 카페")
+            val storeInfo = StoreInfo("cafe ${i}th street", "충남대학교", "cafe")
             addStoreInfo(storeInfo)
         }
     }
 
     fun delAllStoreInfo() {
         val db = dbHelper.writableDatabase
-        db.execSQL("DELETE FROM ${StoreInfoEntry.TABLE_NAME}")
+        db.delete(StoreInfoEntry.TABLE_NAME, null, null)
     }
 
     fun addStoreInfo(storeInfo: StoreInfo) {
@@ -28,5 +28,85 @@ class SearchRepository(context: Context) {
             put(StoreInfoEntry.STORE_CATEGORY, storeInfo.category)
         }
         db.insert(StoreInfoEntry.TABLE_NAME, null, values)
+    }
+
+    fun getSearchResults(searchWord: SearchWord): List<StoreInfo> {
+        val db = dbHelper.readableDatabase
+
+        val projection = arrayOf(
+            StoreInfoEntry.STORE_NAME,
+            StoreInfoEntry.STORE_LOCATION,
+            StoreInfoEntry.STORE_CATEGORY
+        )
+
+        val selection = "${StoreInfoEntry.STORE_CATEGORY} = ?"
+        val selectionArgs = arrayOf(searchWord.searchword)
+
+        val cursor = db.query(
+            StoreInfoEntry.TABLE_NAME,
+            projection,
+            selection,
+            selectionArgs,
+            null,
+            null,
+            null
+        )
+
+        val searchResults = mutableListOf<StoreInfo>()
+        with(cursor) {
+            while (moveToNext()) {
+                val storeName = getString(getColumnIndexOrThrow(StoreInfoEntry.STORE_NAME))
+                val storeLocation = getString(getColumnIndexOrThrow(StoreInfoEntry.STORE_LOCATION))
+                val storeCategory = getString(getColumnIndexOrThrow(StoreInfoEntry.STORE_CATEGORY))
+
+                val storeInfo = StoreInfo(storeName, storeLocation, storeCategory)
+                searchResults.add(storeInfo)
+            }
+        }
+        return searchResults
+    }
+
+    fun saveSearchWord(searchWord: SearchWord){
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put(SearchWordEntry.SEARCH_WORD, searchWord.searchword)
+        }
+        db.insert(SearchWordEntry.TABLE_NAME, null, values)
+    }
+
+    fun getSavedSearchWords(): List<SearchWord>{
+        val db = dbHelper.readableDatabase
+
+        val projection = arrayOf(
+            SearchWordEntry.SEARCH_WORD
+        )
+
+        val cursor = db.query(
+            SearchWordEntry.TABLE_NAME,
+            projection,
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+
+        val savedSearchWords = mutableListOf<SearchWord>()
+        with(cursor) {
+            while (moveToNext()) {
+                val searchWord = getString(getColumnIndexOrThrow(SearchWordEntry.SEARCH_WORD))
+
+                val savedSearchWord = SearchWord(searchWord)
+                savedSearchWords.add(savedSearchWord)
+            }
+        }
+        return savedSearchWords
+    }
+
+    fun delSavedSearchWord(searchWord: SearchWord){
+        val db = dbHelper.writableDatabase
+        val selection = "${SearchWordEntry.SEARCH_WORD} = ?"
+        val selectionArgs = arrayOf(searchWord.searchword)
+        db.delete(SearchWordEntry.TABLE_NAME, selection, selectionArgs)
     }
 }
