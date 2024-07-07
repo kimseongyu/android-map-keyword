@@ -55,15 +55,17 @@ class MainActivity : AppCompatActivity() {
         })
 
         lifecycleScope.launch {
-            viewModel.searchResults.collect {
-                if (it.isEmpty()) {
-                    showView(binding.searchResultEmpty, true)
-                    showView(binding.searchResultsList, false)
-                } else {
-                    showView(binding.searchResultEmpty, false)
-                    showView(binding.searchResultsList, true)
-                    binding.searchResultsList.adapter = SearchResultsAdapter(it, layoutInflater, viewModel::saveSearchWord)
-                    binding.searchResultsList.layoutManager = LinearLayoutManager(this@MainActivity)
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.searchResults.collect {
+                    if (it.isEmpty()) {
+                        showView(binding.searchResultEmpty, true)
+                        showView(binding.searchResultsList, false)
+                    } else {
+                        showView(binding.searchResultEmpty, false)
+                        showView(binding.searchResultsList, true)
+                        binding.searchResultsList.adapter = SearchResultsAdapter(it, layoutInflater, viewModel::saveSearchWord)
+                        binding.searchResultsList.layoutManager = LinearLayoutManager(this@MainActivity)
+                    }
                 }
             }
         }
@@ -71,9 +73,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun getSavedSearchWord() {
         lifecycleScope.launch {
-            viewModel.savedSearchWords.collect{
-                binding.savedSearchWordsList.adapter = SavedSearchWordsAdapter(it, layoutInflater, viewModel::delSavedSearchWord)
-                binding.savedSearchWordsList.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.savedSearchWords.collect{
+                    binding.savedSearchWordsList.adapter = SavedSearchWordsAdapter(it, layoutInflater, viewModel::delSavedSearchWord)
+                    binding.savedSearchWordsList.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+                }
             }
         }
     }
