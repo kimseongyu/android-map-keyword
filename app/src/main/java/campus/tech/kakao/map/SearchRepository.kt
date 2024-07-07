@@ -9,7 +9,7 @@ class SearchRepository(context: Context) {
     private val dbHelper = StoreInfoDBHelper(context)
 
     fun setDefaultData() {
-        if(!hasStoreInfo()) return
+        if(hasStoreInfo()) return
         for (i in 1..100) {
             val storeInfo = StoreInfo("cafe ${i}th street", "충남대학교", "cafe")
             addStoreInfo(storeInfo)
