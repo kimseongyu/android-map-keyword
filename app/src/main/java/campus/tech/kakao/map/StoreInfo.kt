@@ -9,7 +9,7 @@ data class StoreInfo(
 )
 
 object StoreInfoEntry : BaseColumns {
-    const val TABLE_NAME = "storeInfo"
+    const val TABLE_NAME = "store_info"
     const val STORE_NAME = "name"
     const val STORE_LOCATION = "location"
     const val STORE_CATEGORY = "category"

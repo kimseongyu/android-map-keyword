@@ -7,6 +7,6 @@ data class SearchWord(
 )
 
 object SearchWordEntry : BaseColumns {
-    const val TABLE_NAME = "searchWord"
-    const val SEARCH_WORD = "searchWord"
+    const val TABLE_NAME = "search_word"
+    const val SEARCH_WORD = "search_word"
 }
