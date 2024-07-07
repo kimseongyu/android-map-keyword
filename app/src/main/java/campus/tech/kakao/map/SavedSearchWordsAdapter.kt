@@ -32,6 +32,7 @@ class SavedSearchWordsAdapter (
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.savedSearchWord.text = savedSearchWords[position].searchword
+        val item = savedSearchWords[position]
+        holder.savedSearchWord.text = item.searchword
     }
 }
