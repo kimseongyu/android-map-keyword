@@ -2,22 +2,35 @@ package campus.tech.kakao.map
 
 import android.content.ContentValues
 import android.content.Context
+import android.provider.BaseColumns
 
 class SearchRepository(context: Context) {
 
     private val dbHelper = StoreInfoDBHelper(context)
 
     fun setDefaultData() {
-        delAllStoreInfo()
+        if(!hasStoreInfo()) return
         for (i in 1..100) {
             val storeInfo = StoreInfo("cafe ${i}th street", "충남대학교", "cafe")
             addStoreInfo(storeInfo)
         }
     }
 
-    fun delAllStoreInfo() {
-        val db = dbHelper.writableDatabase
-        db.delete(StoreInfoEntry.TABLE_NAME, null, null)
+    fun hasStoreInfo(): Boolean {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            StoreInfoEntry.TABLE_NAME,
+            arrayOf(BaseColumns._ID),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
+        val result = cursor.count != 0
+        cursor.close()
+        db.close()
+        return result
     }
 
     fun addStoreInfo(storeInfo: StoreInfo) {
@@ -28,6 +41,7 @@ class SearchRepository(context: Context) {
             put(StoreInfoEntry.STORE_CATEGORY, storeInfo.category)
         }
         db.insert(StoreInfoEntry.TABLE_NAME, null, values)
+        db.close()
     }
 
     fun getSearchResults(searchWord: SearchWord): List<StoreInfo> {
@@ -63,18 +77,21 @@ class SearchRepository(context: Context) {
                 searchResults.add(storeInfo)
             }
         }
+        cursor.close()
+        db.close()
         return searchResults
     }
 
-    fun saveSearchWord(searchWord: SearchWord){
+    fun saveSearchWord(searchWord: SearchWord) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
             put(SearchWordEntry.SEARCH_WORD, searchWord.searchword)
         }
         db.insert(SearchWordEntry.TABLE_NAME, null, values)
+        db.close()
     }
 
-    fun getSavedSearchWords(): List<SearchWord>{
+    fun getSavedSearchWords(): List<SearchWord> {
         val db = dbHelper.readableDatabase
 
         val projection = arrayOf(
@@ -100,13 +117,16 @@ class SearchRepository(context: Context) {
                 savedSearchWords.add(savedSearchWord)
             }
         }
+        cursor.close()
+        db.close()
         return savedSearchWords
     }
 
-    fun delSavedSearchWord(searchWord: SearchWord){
+    fun delSavedSearchWord(searchWord: SearchWord) {
         val db = dbHelper.writableDatabase
         val selection = "${SearchWordEntry.SEARCH_WORD} = ?"
         val selectionArgs = arrayOf(searchWord.searchword)
         db.delete(SearchWordEntry.TABLE_NAME, selection, selectionArgs)
+        db.close()
     }
 }
