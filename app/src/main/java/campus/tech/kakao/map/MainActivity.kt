@@ -5,8 +5,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import campus.tech.kakao.map.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
@@ -25,18 +27,18 @@ class MainActivity : AppCompatActivity() {
         viewModel =
             ViewModelProvider(this, viewModelProviderFactory)[SearchViewModel::class.java]
 
-        delSearchWord()
-        detectSearchWindowChanged()
+        addDelSearchWordListener()
+        addDetectSearchWindowChangedListener()
         getSavedSearchWord()
     }
 
-    private fun delSearchWord() {
+    private fun addDelSearchWordListener() {
         binding.delSearchWord.setOnClickListener {
             binding.searchWindow.text = null
         }
     }
 
-    private fun detectSearchWindowChanged() {
+    private fun addDetectSearchWindowChangedListener() {
         binding.searchWindow.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
